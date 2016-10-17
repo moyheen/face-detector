@@ -122,8 +122,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void drawEyePatchBitmap(int landmarkType, float cx, float cy) {
+
         if (landmarkType == 4) {
-            canvas.drawBitmap(eyePatchBitmap, cx - 270, cy - 250, null);
+            // TODO: Optimize so that this calculation is not done for every face
+            int scaledWidth = eyePatchBitmap.getScaledWidth(canvas);
+            int scaledHeight = eyePatchBitmap.getScaledHeight(canvas);
+            canvas.drawBitmap(eyePatchBitmap, cx - (scaledWidth / 2), cy - (scaledHeight / 2), null);
         }
     }
 }
