@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Face Detection</string>
+    <string name="process">Process</string>
+    <string name="content_description">Editable bitmap</string>
 </resources>

@@ -20,12 +20,12 @@ import com.google.android.gms.vision.face.FaceDetector;
 import com.google.android.gms.vision.face.Landmark;
 
 public class MainActivity extends AppCompatActivity {
-    ImageView imageView;
-    Paint rectPaint;
-    Bitmap defaultBitmap;
-    Bitmap temporaryBitmap;
-    Bitmap eyePatchBitmap;
-    Canvas canvas;
+    private ImageView imageView;
+    private Paint rectPaint;
+    private Bitmap defaultBitmap;
+    private Bitmap temporaryBitmap;
+    private Bitmap eyePatchBitmap;
+    private Canvas canvas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
