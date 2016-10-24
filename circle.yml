@@ -4,7 +4,7 @@
 
 general:
     artifacts:
-        - /home/ubuntu/RSS-Webview/app/build/outputs/apk/
+        - /home/ubuntu/FaceDetection/app/build/outputs/apk/
 
 machine:
     java:
@@ -14,7 +14,7 @@ machine:
 
 dependencies:
     override:
-        - echo y | android update sdk --no-ui --all --filter tools,platform-tools,build-tools-25,android-25,extra-google-m2repository,extra-google-google_play_services,extra-android-m2repository
+        - secho y | android update sdk --no-ui --all --filter tools,platform-tools,build-tools-25,android-25,extra-google-m2repository,extra-google-google_play_services,extra-android-m2repository
         - ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
 
 test:
