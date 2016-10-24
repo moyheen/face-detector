@@ -19,6 +19,14 @@ import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.google.android.gms.vision.face.Landmark;
 
+import java.util.concurrent.Callable;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
     private Paint rectPaint;
@@ -26,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap temporaryBitmap;
     private Bitmap eyePatchBitmap;
     private Canvas canvas;
+    private Subscription faceDetectorSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +42,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         imageView = (ImageView) findViewById(R.id.image_view);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (faceDetectorSubscription != null) {
+            faceDetectorSubscription.unsubscribe();
+        }
     }
 
     public void processImage(View view) {
@@ -46,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         canvas = new Canvas(temporaryBitmap);
         canvas.drawBitmap(defaultBitmap, 0, 0, null);
 
-        FaceDetector faceDetector = new FaceDetector.Builder(this)
+        final FaceDetector faceDetector = new FaceDetector.Builder(this)
                 .setTrackingEnabled(false)
                 .setLandmarkType(FaceDetector.ALL_LANDMARKS)
                 .build();
@@ -57,13 +75,8 @@ public class MainActivity extends AppCompatActivity {
                     .show();
         } else {
             Frame frame = new Frame.Builder().setBitmap(defaultBitmap).build();
-            SparseArray<Face> sparseArray = faceDetector.detect(frame);
 
-            detectFaces(sparseArray);
-
-            imageView.setImageDrawable(new BitmapDrawable(getResources(), temporaryBitmap));
-
-            faceDetector.release();
+            faceDetectorSubscription = getSubscription(faceDetector, frame);
         }
     }
 
@@ -129,5 +142,42 @@ public class MainActivity extends AppCompatActivity {
             int scaledHeight = eyePatchBitmap.getScaledHeight(canvas);
             canvas.drawBitmap(eyePatchBitmap, cx - (scaledWidth / 2), cy - (scaledHeight / 2), null);
         }
+    }
+
+    private Observable<SparseArray> getFaceDetectorObservable(final FaceDetector faceDetector,
+                                                              final Frame frame) {
+        return Observable.fromCallable(new Callable<SparseArray>() {
+
+            @Override
+            public SparseArray call() throws Exception {
+                SparseArray<Face> sparseArray = faceDetector.detect(frame);
+                detectFaces(sparseArray);
+                return null;
+            }
+        });
+    }
+
+    private Subscription getSubscription(final FaceDetector faceDetector, Frame frame) {
+        return getFaceDetectorObservable(faceDetector, frame)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<SparseArray>() {
+                    @Override
+                    public void onCompleted() {
+                        imageView.setImageDrawable(new BitmapDrawable(getResources(),
+                                temporaryBitmap));
+                        faceDetector.release();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(SparseArray sparseArray) {
+
+                    }
+                });
     }
 }
