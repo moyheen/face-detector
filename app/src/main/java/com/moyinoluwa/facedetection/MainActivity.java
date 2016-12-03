@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
             float left = face.getPosition().x;
             float top = face.getPosition().y;
             float right = left + face.getWidth();
-            float bottom = right + face.getHeight();
+            float bottom = top + face.getHeight();
             float cornerRadius = 2.0f;
 
             RectF rectF = new RectF(left, top, right, bottom);
