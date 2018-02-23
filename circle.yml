@@ -12,10 +12,14 @@ machine:
     environment:
         ANDROID_HOME: /usr/local/android-sdk-linux
 
+run:
+    name: Approve license for build tools
+    command: (echo y; echo y; echo y; echo y; echo y; echo y) | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+
 dependencies:
-  pre:
-    - echo y | android update sdk --no-ui --all --filter tools,platform-tools,build-tools-26.0.2,android-26,extra-google-m2repository,extra-google-google_play_services,extra-android-m2repository
-    - ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
+    pre:
+        - echo y | android update sdk --no-ui --all --filter tools,platform-tools,build-tools-27.0.3,android-27,extra-google-m2repository,extra-google-google_play_services,extra-android-m2repository
+        - ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
 
 test:
     override:
