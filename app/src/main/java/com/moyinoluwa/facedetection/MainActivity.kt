@@ -22,6 +22,7 @@ private const val RADIUS = 10f
 private const val TEXT_SIZE = 50f
 private const val CORNER_RADIUS = 2f
 private const val STROKE_WIDTH = 5f
+
 class MainActivity : AppCompatActivity() {
 
     lateinit var imageView: ImageView
@@ -29,16 +30,18 @@ class MainActivity : AppCompatActivity() {
     lateinit var temporaryBitmap: Bitmap
     lateinit var eyePatchBitmap: Bitmap
     lateinit var canvas: Canvas
+    private var scaledWidth = 0
+    private var scaledHeight = 0
 
-    val rectPaint = Paint()
-    val faceDetector: FaceDetector
+    private val rectPaint = Paint()
+    private val faceDetector: FaceDetector
         get() = initializeDetector()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        imageView = findViewById<View>(R.id.image_view) as ImageView
+        imageView = findViewById(R.id.image_view)
     }
 
     fun processImage(view: View) {
@@ -49,11 +52,11 @@ class MainActivity : AppCompatActivity() {
         initializeBitmap(bitmapOptions)
         createRectanglePaint()
 
-        canvas = Canvas(temporaryBitmap).apply {
-            drawBitmap(defaultBitmap, 0f, 0f, null)
-        }
+        canvas = Canvas(temporaryBitmap).apply { drawBitmap(defaultBitmap, 0f, 0f, null) }
+        scaledWidth = eyePatchBitmap.getScaledWidth(canvas)
+        scaledHeight = eyePatchBitmap.getScaledHeight(canvas)
 
-        if (!faceDetector.isOperational) {
+        if (faceDetector.isOperational.not()) {
             AlertDialog.Builder(this)
                        .setMessage("Face Detector could not be set up on your device :(")
                        .show()
@@ -129,9 +132,6 @@ class MainActivity : AppCompatActivity() {
     private fun drawEyePatchBitmap(landmarkType: Int, xCoordinate: Float, yCoordinate: Float) {
         when (landmarkType) {
             LEFT_EYE -> {
-                // TODO: Optimize so that this calculation is not done for every face
-                val scaledWidth = eyePatchBitmap.getScaledWidth(canvas)
-                val scaledHeight = eyePatchBitmap.getScaledHeight(canvas)
                 canvas.drawBitmap(eyePatchBitmap,
                                   xCoordinate - scaledWidth / 2,
                                   yCoordinate - scaledHeight / 2,
